@@ -5,6 +5,7 @@ import "./styles.css";
 function App() {
   const [users, setUsers] = useState([]);
   const [formData, setFormData] = useState({
+    id: "",
     firstName: "",
     lastName: "",
     email: "",
@@ -15,7 +16,6 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Process user data to extract required fields
   const processUserData = (userData) => {
     return userData.map((user) => ({
       id: user.id,
@@ -26,7 +26,6 @@ function App() {
     }));
   };
 
-  // Fetch Users
   const fetchUsers = async () => {
     setIsLoading(true);
     setError(null);
@@ -48,7 +47,6 @@ function App() {
     fetchUsers();
   }, []);
 
-  // Handle Input Change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -57,33 +55,36 @@ function App() {
     });
   };
 
-  // Add/Update User
   const handleAddUser = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
     try {
+      if (users.some((user) => user.id === Number(formData.id) && !isEditing)) {
+        throw new Error("ID must be unique.");
+      }
+
       if (isEditing) {
-        // Update existing user
         setUsers(
           users.map((user) =>
-            user.id === editingId ? { ...user, ...formData } : user
+            user.id === editingId
+              ? { ...user, ...formData, id: Number(formData.id) }
+              : user
           )
         );
         setIsEditing(false);
         setEditingId(null);
       } else {
-        // Add new user
         const newUser = {
           ...formData,
-          id: users.length + 1,
+          id: Number(formData.id),
         };
         setUsers([...users, newUser]);
       }
 
-      // Reset form
       setFormData({
+        id: "",
         firstName: "",
         lastName: "",
         email: "",
@@ -92,16 +93,16 @@ function App() {
       setIsLoading(false);
     } catch (error) {
       console.error("Error adding/updating user:", error);
-      setError("Failed to add/update user. Please try again.");
+      setError(error.message || "Failed to add/update user. Please try again.");
       setIsLoading(false);
     }
   };
 
-  // Edit User
   const handleEditUser = (user) => {
     setIsEditing(true);
     setEditingId(user.id);
     setFormData({
+      id: user.id.toString(),
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
@@ -109,7 +110,6 @@ function App() {
     });
   };
 
-  // Delete User
   const handleDeleteUser = async (id) => {
     setIsLoading(true);
     setError(null);
@@ -125,17 +125,24 @@ function App() {
 
   return (
     <div className="container">
-      {/* Dashboard Header */}
       <div className="dashboard-header">
         <h1>User Management Dashboard</h1>
       </div>
 
-      {/* Error Handling */}
       {error && <div className="error-message">{error}</div>}
 
-      {/* User Form */}
       <form onSubmit={handleAddUser} className="user-form">
         <div className="form-grid">
+          <input
+            type="number"
+            name="id"
+            placeholder="ID"
+            value={formData.id}
+            onChange={handleInputChange}
+            className="form-input"
+            required
+            disabled={isEditing}
+          />
           <input
             type="text"
             name="firstName"
@@ -177,14 +184,12 @@ function App() {
         </button>
       </form>
 
-      {/* Loading Spinner */}
       {isLoading && (
         <div className="loading-spinner">
           <div className="spinner"></div>
         </div>
       )}
 
-      {/* User List */}
       <div className="user-list">
         {users.map((user) => (
           <div key={user.id} className="user-card">
