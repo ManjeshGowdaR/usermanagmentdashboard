@@ -1,50 +1,55 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+// import axios from "axios"; // No longer needed for mock data
 import "./styles.css";
 
+const ORDER_STATUSES = ["All", "Pending", "Shipped", "Completed", "Cancelled"];
+
 function App() {
-  const [users, setUsers] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [statusFilter, setStatusFilter] = useState("All");
   const [formData, setFormData] = useState({
-    id: "",
-    firstName: "",
-    lastName: "",
-    email: "",
-    department: "",
+    orderId: "",
+    customerName: "",
+    orderDate: "",
+    status: "",
+    totalAmount: 0,
+    itemCount: 0,
   });
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const processUserData = (userData) => {
-    return userData.map((user) => ({
-      id: user.id,
-      firstName: user.name.split(" ")[0],
-      lastName: user.name.split(" ").slice(1).join(" "),
-      email: user.email,
-      department: user.company.name,
-    }));
+  const processOrderData = (orderData) => {
+    // Assuming orderData is already in the correct format
+    return orderData;
   };
 
-  const fetchUsers = async () => {
+  const fetchOrders = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axios.get(
-        "https://jsonplaceholder.typicode.com/users"
-      );
-      const processedUsers = processUserData(response.data);
-      setUsers(processedUsers);
+      // Define mock sales order data
+      const mockOrders = [
+        { orderId: "SO001", customerName: "Alice Wonderland", orderDate: "2023-10-26", status: "Shipped", totalAmount: 150.00, itemCount: 3 },
+        { orderId: "SO002", customerName: "Bob The Builder", orderDate: "2023-10-27", status: "Pending", totalAmount: 200.50, itemCount: 5 },
+        { orderId: "SO003", customerName: "Charlie Brown", orderDate: "2023-10-28", status: "Completed", totalAmount: 75.20, itemCount: 2 },
+        { orderId: "SO004", customerName: "Diana Prince", orderDate: "2023-10-29", status: "Cancelled", totalAmount: 120.00, itemCount: 1 }
+      ];
+
+      const processedOrders = processOrderData(mockOrders);
+      setOrders(processedOrders);
       setIsLoading(false);
     } catch (error) {
-      console.error("Error fetching users:", error);
-      setError("Failed to fetch users. Please try again.");
+      // This catch block might be less relevant for mock data but good for structure
+      console.error("Error fetching orders:", error);
+      setError("Failed to fetch orders. Please try again.");
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUsers();
+    fetchOrders();
   }, []);
 
   const handleInputChange = (e) => {
@@ -55,169 +60,218 @@ function App() {
     });
   };
 
-  const handleAddUser = async (e) => {
+  const handleAddOrder = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
     try {
-      if (users.some((user) => user.id === Number(formData.id) && !isEditing)) {
-        throw new Error("ID must be unique.");
-      }
+      const orderData = {
+        ...formData,
+        totalAmount: parseFloat(formData.totalAmount),
+        itemCount: parseInt(formData.itemCount, 10),
+      };
 
       if (isEditing) {
-        setUsers(
-          users.map((user) =>
-            user.id === editingId
-              ? { ...user, ...formData, id: Number(formData.id) }
-              : user
+        // ID uniqueness check is not needed when editing an existing order
+        setOrders(
+          orders.map((order) =>
+            order.orderId === editingId
+              ? { ...order, ...orderData } // orderData already has correct types
+              : order
           )
         );
         setIsEditing(false);
         setEditingId(null);
       } else {
-        const newUser = {
-          ...formData,
-          id: Number(formData.id),
-        };
-        setUsers([...users, newUser]);
+        // ID uniqueness check for new orders
+        if (orders.some((order) => order.orderId === orderData.orderId)) {
+          throw new Error("Order ID must be unique.");
+        }
+        const newOrder = { ...orderData }; // orderData already has correct types
+        setOrders([...orders, newOrder]);
       }
 
       setFormData({
-        id: "",
-        firstName: "",
-        lastName: "",
-        email: "",
-        department: "",
+        orderId: "",
+        customerName: "",
+        orderDate: "",
+        status: "",
+        totalAmount: 0,
+        itemCount: 0,
       });
       setIsLoading(false);
     } catch (error) {
-      console.error("Error adding/updating user:", error);
-      setError(error.message || "Failed to add/update user. Please try again.");
+      console.error("Error adding/updating order:", error);
+      setError(error.message || "Failed to add/update order. Please try again.");
       setIsLoading(false);
     }
   };
 
-  const handleEditUser = (user) => {
+  const handleEditOrder = (orderToEdit) => {
     setIsEditing(true);
-    setEditingId(user.id);
+    setEditingId(orderToEdit.orderId);
     setFormData({
-      id: user.id.toString(),
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      department: user.department,
+      orderId: orderToEdit.orderId,
+      customerName: orderToEdit.customerName,
+      orderDate: orderToEdit.orderDate,
+      status: orderToEdit.status,
+      totalAmount: orderToEdit.totalAmount, // Already a number from mock/previous add
+      itemCount: orderToEdit.itemCount,   // Already a number
     });
   };
 
-  const handleDeleteUser = async (id) => {
+  const handleDeleteOrder = async (orderIdToDelete) => {
     setIsLoading(true);
     setError(null);
     try {
-      setUsers(users.filter((user) => user.id !== id));
+      setOrders(orders.filter((order) => order.orderId !== orderIdToDelete));
       setIsLoading(false);
     } catch (error) {
-      console.error("Error deleting user:", error);
-      setError("Failed to delete user. Please try again.");
+      console.error("Error deleting order:", error);
+      setError("Failed to delete order. Please try again.");
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="container">
-      <div className="dashboard-header">
-        <h1>User Management Dashboard</h1>
+    <div className="mx-auto p-4 md:p-6 lg:p-8 bg-gray-100 text-gray-800 min-h-screen">
+      <header className="bg-gradient-to-r from-purple-600 to-blue-500 text-white p-6 md:p-8 rounded-lg shadow-xl mb-6 md:mb-8">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center">Sales Order Dashboard</h1>
+      </header>
+
+      {error && (
+        <div className="bg-red-500 text-white p-4 rounded-md shadow-md mb-6 text-center">
+          {error}
+        </div>
+      )}
+
+      <div className="filter-container mb-6 p-4 bg-white shadow-lg rounded-lg">
+        <label htmlFor="statusFilter" className="block text-sm font-medium text-gray-700 mb-1">
+          Filter by Status:
+        </label>
+        <select
+          id="statusFilter"
+          name="statusFilter"
+          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md shadow-sm"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          {ORDER_STATUSES.map(status => (
+            <option key={status} value={status}>{status}</option>
+          ))}
+        </select>
       </div>
 
-      {error && <div className="error-message">{error}</div>}
-
-      <form onSubmit={handleAddUser} className="user-form">
-        <div className="form-grid">
+      <form 
+        onSubmit={handleAddOrder} 
+        className="bg-white p-6 md:p-8 rounded-lg shadow-xl mb-6 md:mb-8"
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-6">
           <input
-            type="number"
-            name="id"
-            placeholder="ID"
-            value={formData.id}
+            type="text"
+            name="orderId"
+            placeholder="Order ID"
+            value={formData.orderId}
             onChange={handleInputChange}
-            className="form-input"
+            className="form-input w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             required
             disabled={isEditing}
           />
           <input
             type="text"
-            name="firstName"
-            placeholder="First Name"
-            value={formData.firstName}
+            name="customerName"
+            placeholder="Customer Name"
+            value={formData.customerName}
             onChange={handleInputChange}
-            className="form-input"
+            className="form-input w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            required
+          />
+          <input
+            type="date"
+            name="orderDate"
+            placeholder="Order Date"
+            value={formData.orderDate}
+            onChange={handleInputChange}
+            className="form-input w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             required
           />
           <input
             type="text"
-            name="lastName"
-            placeholder="Last Name"
-            value={formData.lastName}
+            name="status"
+            placeholder="Status"
+            value={formData.status}
             onChange={handleInputChange}
-            className="form-input"
+            className="form-input w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             required
           />
           <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
+            type="number"
+            name="totalAmount"
+            placeholder="Total Amount"
+            value={formData.totalAmount}
             onChange={handleInputChange}
-            className="form-input"
-            required
+            className="form-input w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           />
           <input
-            type="text"
-            name="department"
-            placeholder="Department"
-            value={formData.department}
+            type="number"
+            name="itemCount"
+            placeholder="Item Count"
+            value={formData.itemCount}
             onChange={handleInputChange}
-            className="form-input"
+            className="form-input w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           />
         </div>
-        <button type="submit" className="submit-btn" disabled={isLoading}>
-          {isEditing ? "Update User" : "Add User"}
+        <button 
+          type="submit" 
+          className="submit-btn w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
+          disabled={isLoading}
+        >
+          {isEditing ? "Update Order" : "Add Order"}
         </button>
       </form>
 
       {isLoading && (
-        <div className="loading-spinner">
-          <div className="spinner"></div>
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+          <div className="spinner border-4 border-t-4 border-t-purple-500 border-gray-200 rounded-full w-12 h-12 animate-spin"></div>
         </div>
       )}
 
-      <div className="user-list">
-        {users.map((user) => (
-          <div key={user.id} className="user-card">
-            <div className="user-card-header">
-              <h2>
-                {user.firstName} {user.lastName}
-              </h2>
-              <span className="user-id">ID: {user.id}</span>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        {orders
+          .filter(order => statusFilter === "All" || order.status === statusFilter)
+          .map((order) => (
+          <div key={order.orderId} className="order-card bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105">
+            <div className="order-card-header bg-gray-50 p-4 border-b border-gray-200 flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-purple-700">{order.customerName}</h2>
+              <span className="order-id text-sm font-medium text-gray-600 bg-purple-100 text-purple-700 px-2 py-1 rounded-full">Order ID: {order.orderId}</span>
             </div>
-            <div className="user-info">
-              <p>
-                <strong>Email:</strong> {user.email}
+            <div className="order-info p-4 space-y-2">
+              <p className="text-gray-700"><strong className="font-medium text-gray-900">Order Date:</strong> {order.orderDate}</p>
+              <p className="text-gray-700"><strong className="font-medium text-gray-900">Status:</strong> 
+                <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold
+                  ${order.status === 'Shipped' ? 'bg-blue-100 text-blue-700' : ''}
+                  ${order.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' : ''}
+                  ${order.status === 'Completed' ? 'bg-green-100 text-green-700' : ''}
+                  ${order.status === 'Cancelled' ? 'bg-red-100 text-red-700' : ''}
+                `}>
+                  {order.status}
+                </span>
               </p>
-              <p>
-                <strong>Department:</strong> {user.department}
-              </p>
+              <p className="text-gray-700"><strong className="font-medium text-gray-900">Total Amount:</strong> ${order.totalAmount.toFixed(2)}</p>
+              <p className="text-gray-700"><strong className="font-medium text-gray-900">Items:</strong> {order.itemCount}</p>
             </div>
-            <div className="user-actions">
+            <div className="order-actions p-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
               <button
-                onClick={() => handleEditUser(user)}
-                className="action-btn edit-btn"
+                onClick={() => handleEditOrder(order)}
+                className="action-btn edit-btn bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
                 disabled={isLoading}
               >
                 Edit
               </button>
               <button
-                onClick={() => handleDeleteUser(user.id)}
-                className="action-btn delete-btn"
+                onClick={() => handleDeleteOrder(order.orderId)}
+                className="action-btn delete-btn bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
                 disabled={isLoading}
               >
                 Delete
