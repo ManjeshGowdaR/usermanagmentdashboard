@@ -136,7 +136,7 @@ function App() {
 
   return (
     <div className="mx-auto p-4 md:p-6 lg:p-8 bg-gray-100 text-gray-800 min-h-screen">
-      <header className="bg-gradient-to-r from-purple-600 to-blue-500 text-white p-6 md:p-8 rounded-lg shadow-xl mb-6 md:mb-8">
+      <header className="bg-gradient-to-r from-teal-500 to-cyan-600 text-white p-6 md:p-8 rounded-lg shadow-xl mb-6 md:mb-8">
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center">Sales Order Dashboard</h1>
       </header>
 
@@ -153,7 +153,7 @@ function App() {
         <select
           id="statusFilter"
           name="statusFilter"
-          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md shadow-sm"
+          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm rounded-md shadow-sm"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
         >
@@ -174,7 +174,7 @@ function App() {
             placeholder="Order ID"
             value={formData.orderId}
             onChange={handleInputChange}
-            className="form-input w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="form-input w-full p-3 border border-teal-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
             required
             disabled={isEditing}
           />
@@ -184,7 +184,7 @@ function App() {
             placeholder="Customer Name"
             value={formData.customerName}
             onChange={handleInputChange}
-            className="form-input w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="form-input w-full p-3 border border-teal-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
             required
           />
           <input
@@ -193,7 +193,7 @@ function App() {
             placeholder="Order Date"
             value={formData.orderDate}
             onChange={handleInputChange}
-            className="form-input w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="form-input w-full p-3 border border-teal-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
             required
           />
           <input
@@ -202,7 +202,7 @@ function App() {
             placeholder="Status"
             value={formData.status}
             onChange={handleInputChange}
-            className="form-input w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="form-input w-full p-3 border border-teal-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
             required
           />
           <input
@@ -211,7 +211,7 @@ function App() {
             placeholder="Total Amount"
             value={formData.totalAmount}
             onChange={handleInputChange}
-            className="form-input w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="form-input w-full p-3 border border-teal-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
           />
           <input
             type="number"
@@ -219,12 +219,12 @@ function App() {
             placeholder="Item Count"
             value={formData.itemCount}
             onChange={handleInputChange}
-            className="form-input w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="form-input w-full p-3 border border-teal-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
           />
         </div>
         <button 
           type="submit" 
-          className="submit-btn w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
+          className="submit-btn w-full sm:w-auto bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50"
           disabled={isLoading}
         >
           {isEditing ? "Update Order" : "Add Order"}
@@ -233,7 +233,7 @@ function App() {
 
       {isLoading && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-          <div className="spinner border-4 border-t-4 border-t-purple-500 border-gray-200 rounded-full w-12 h-12 animate-spin"></div>
+          <div className="spinner border-4 border-t-4 border-t-teal-500 border-gray-200 rounded-full w-12 h-12 animate-spin"></div>
         </div>
       )}
 
@@ -241,16 +241,16 @@ function App() {
         {orders
           .filter(order => statusFilter === "All" || order.status === statusFilter)
           .map((order) => (
-          <div key={order.orderId} className="order-card bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105">
+          <div key={order.orderId} className="order-card bg-white rounded-xl shadow-lg overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105 border border-gray-200">
             <div className="order-card-header bg-gray-50 p-4 border-b border-gray-200 flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-purple-700">{order.customerName}</h2>
-              <span className="order-id text-sm font-medium text-gray-600 bg-purple-100 text-purple-700 px-2 py-1 rounded-full">Order ID: {order.orderId}</span>
+              <h2 className="text-xl font-semibold text-teal-700">{order.customerName}</h2>
+              <span className="order-id text-sm font-medium text-teal-700 bg-teal-100 px-2 py-1 rounded-full">Order ID: {order.orderId}</span>
             </div>
             <div className="order-info p-4 space-y-2">
               <p className="text-gray-700"><strong className="font-medium text-gray-900">Order Date:</strong> {order.orderDate}</p>
               <p className="text-gray-700"><strong className="font-medium text-gray-900">Status:</strong> 
                 <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold
-                  ${order.status === 'Shipped' ? 'bg-blue-100 text-blue-700' : ''}
+                  ${order.status === 'Shipped' ? 'bg-blue-100 text-blue-700' : ''} 
                   ${order.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' : ''}
                   ${order.status === 'Completed' ? 'bg-green-100 text-green-700' : ''}
                   ${order.status === 'Cancelled' ? 'bg-red-100 text-red-700' : ''}
@@ -264,7 +264,7 @@ function App() {
             <div className="order-actions p-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
               <button
                 onClick={() => handleEditOrder(order)}
-                className="action-btn edit-btn bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                className="action-btn edit-btn bg-teal-400 hover:bg-teal-500 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50"
                 disabled={isLoading}
               >
                 Edit
